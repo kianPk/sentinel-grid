@@ -28,9 +28,33 @@ export function seedAlerts() {
     assetId,
     detail,
     status: i % 4 === 0 ? 'acknowledged' : 'open',
+    playbookId: i === 0 ? 'pb_contain' : i === 1 ? 'pb_dns' : null,
     createdAt: Date.now() - i * 3600_000 * 1.7,
   }))
 }
+
+export const PLAYBOOKS = [
+  {
+    id: 'pb_contain',
+    title: 'Brute-force containment',
+    steps: ['Block source at edge WAF', 'Force MFA re-enrollment', 'Rotate VPN pre-shared keys', 'Review auth logs 24h'],
+  },
+  {
+    id: 'pb_dns',
+    title: 'Suspicious DNS exfil',
+    steps: ['Sinkhole rare TLD queries', 'Snapshot resolver logs', 'Isolate affected workload', 'Open ticket with NetOps'],
+  },
+  {
+    id: 'pb_priv',
+    title: 'Privilege escalation',
+    steps: ['Revoke temporary admin roles', 'Disable new access keys', 'Run IAM policy diff', 'Notify identity team'],
+  },
+  {
+    id: 'pb_malware',
+    title: 'Unsigned binary execution',
+    steps: ['Quarantine host from VLAN', 'Collect process tree', 'Submit hash to sandbox', 'Rebuild runner image'],
+  },
+]
 
 export const TACTICS = [
   'Initial Access',

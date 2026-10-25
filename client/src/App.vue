@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { ASSETS, TACTICS, seedAlerts } from './demo'
+import { ASSETS, TACTICS, PLAYBOOKS, seedAlerts } from './demo'
 
 const alerts = ref(seedAlerts())
 const assets = ref(ASSETS)
@@ -52,6 +52,15 @@ function ago(ts) {
 
 function setStatus(alert, status) {
   alert.status = status
+  if (selected.value?.id === alert.id) selected.value = { ...alert }
+}
+
+function playbookById(id) {
+  return PLAYBOOKS.find((p) => p.id === id) || null
+}
+
+function assignPlaybook(alert, playbookId) {
+  alert.playbookId = playbookId || null
   if (selected.value?.id === alert.id) selected.value = { ...alert }
 }
 </script>
@@ -127,6 +136,21 @@ function setStatus(alert, status) {
           <button type="button" @click="setStatus(selected, 'open')">Reopen</button>
         </div>
         <p class="hint">Status: <code>{{ selected.status }}</code></p>
+
+        <div class="playbooks">
+          <h3>Response playbook</h3>
+          <select
+            :value="selected.playbookId || ''"
+            @change="assignPlaybook(selected, $event.target.value || null)"
+          >
+            <option value="">Unassigned</option>
+            <option v-for="pb in PLAYBOOKS" :key="pb.id" :value="pb.id">{{ pb.title }}</option>
+          </select>
+          <ol v-if="playbookById(selected.playbookId)" class="steps">
+            <li v-for="(step, idx) in playbookById(selected.playbookId).steps" :key="idx">{{ step }}</li>
+          </ol>
+          <p v-else class="pb-hint">Assign a playbook to guide triage steps.</p>
+        </div>
       </aside>
       <aside v-else class="panel detail empty">
         <p>Select an alert to triage.</p>
@@ -284,6 +308,16 @@ em[data-s='info'] { color: var(--info); background: rgba(106,167,255,.1); }
 .actions .ok { border-color: rgba(94,200,160,.4); color: var(--low); }
 .hint { color: var(--faint); font-size: 0.8rem; }
 .hint code { color: var(--info); font-family: var(--mono); }
+.playbooks {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+}
+.playbooks h3 { margin: 0; font-size: 0.8rem; color: var(--faint); text-transform: uppercase; letter-spacing: .06em; }
+.playbooks .steps { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.85rem; line-height: 1.45; }
+.pb-hint { margin: 0; color: var(--faint); font-size: 0.8rem; }
 .empty { display: grid; place-items: center; color: var(--faint); }
 .bar {
   display: grid; grid-template-columns: 140px 1fr 24px; gap: 8px; align-items: center;
